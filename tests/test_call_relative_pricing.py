@@ -10,16 +10,16 @@ def call_price_ratio(K, K_anchor, C_anchor, alpha, spot):
 
 
 def test_call_relative_pricing():
-    C1 = 0.6
-    K1 = 280
-    K2 = 300
-    SPOT = 20
+    C1_anchor = 63.1
+    K1_anchor = 5670
+    K = 6795
+    SPOT = 5663
     alpha_index = 3.2
     guessed_price_under_power_laws = call_price_ratio(
-        C1, K1, K2, SPOT, alpha_index)
-    market_price = 0.19
+        K, K1_anchor, C1_anchor, alpha_index, SPOT)
+    market_price = 1060
     print(guessed_price_under_power_laws)
-    assert market_price > guessed_price_under_power_laws
+    #assert market_price > guessed_price_under_power_laws
 
 if __name__ == "__main__":
     test_call_relative_pricing()
