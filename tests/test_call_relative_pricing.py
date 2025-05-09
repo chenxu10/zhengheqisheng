@@ -24,6 +24,9 @@ def test_call_relative_pricing():
 def test_random():
     assert 2 > 1
 
+def test_fail():
+    assert 3 < 1
+
 if __name__ == "__main__":
     test_random()
     test_call_relative_pricing()
