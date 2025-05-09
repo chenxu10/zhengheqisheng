@@ -21,12 +21,5 @@ def test_call_relative_pricing():
     print(guessed_price_under_power_laws)
     assert market_price > guessed_price_under_power_laws
 
-def test_random():
-    assert 2 > 1
-
-def test_fail():
-    assert 3 < 1
-
 if __name__ == "__main__":
-    test_random()
     test_call_relative_pricing()
