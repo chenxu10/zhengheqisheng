@@ -1,6 +1,9 @@
 
 
 def call_price_ratio(K, K_anchor, C_anchor, alpha, spot):
+    """
+    
+    """
     return ((K-spot) / (K_anchor-spot)) ** (1 - alpha) * C_anchor
 
 
