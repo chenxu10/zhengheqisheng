@@ -12,7 +12,7 @@
 ## 译者注
 
 [^1]: 关于正规变化类的详细数学处理，可参考Bingham, N.H.等人的经典著作《Regular Variation》。
-第一次由Jovan Karamata在1930提出，主要研究以下关系
+第一次由Jovan Karamata在1930提出，主要研究诸如以下关系：
 $\[
 \lim_{x \to \infty} \frac{f(tx)}{f(x)} = t^ρ \quad \text{for all } t > 0
 \]$
