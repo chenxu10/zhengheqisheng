@@ -1,4 +1,10 @@
-def call_price_ratio(K, K_anchor, C_anchor, alpha, spot):
+def call_price_ratio(
+    K: float,
+    K_anchor: float,
+    C_anchor: float,
+    alpha: float,
+    spot: float
+) -> float:
     """
     Caculate realtice call price using power law formulation
     
