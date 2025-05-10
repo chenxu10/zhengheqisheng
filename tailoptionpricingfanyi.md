@@ -5,14 +5,11 @@
 
 *A.第一种方法：底层资产S是正规变化类[^1]*
 
-从简单的例子开始，帮助我们建立直觉。
+从简单的例子开始，帮助我们建立直觉。我们假设S的生存函数属于正规变化 $\RV_alpha$
 
 
 
 ## 译者注
 
 [^1]: 关于正规变化类的详细数学处理，可参考Bingham, N.H.等人的经典著作《Regular Variation》。
-第一次由Jovan Karamata在1930提出，主要研究诸如以下关系：
-$
-\lim_{x \to \infty} \frac{f(Ax)}{f(x)} = A^\rho \quad \text{for all } A > 0
-$
+第一次由Jovan Karamata在1930提出。
