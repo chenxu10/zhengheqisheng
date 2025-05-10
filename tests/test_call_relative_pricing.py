@@ -1,5 +1,5 @@
 import pytest
-from src.pricing.call_relative import call_price_ratio
+from src.pricing.relative_price import call_price_ratio
 
 @pytest.mark.parametrize(
     "K,anchor_strike,anchor_price,alpha,spot,market_price",
