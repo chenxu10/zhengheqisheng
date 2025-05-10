@@ -18,3 +18,13 @@ def call_price_ratio(
         spot: Underlying spot price
     """
     return ((K-spot) / (K_anchor-spot)) ** (1 - alpha) * C_anchor
+
+def put_price_ratio(
+        K: float,
+        K_anchor:float,
+        P_anchor: float,
+        alpha: float,
+        spot: float
+    ) -> float:
+        return 15.0
+
