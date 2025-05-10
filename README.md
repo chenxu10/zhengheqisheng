@@ -12,5 +12,5 @@
 1. Taleb, N. N., Yarckin, B., Mann, C., Delic, D., & Spitznagel, M. (2019). Tail option pricing under power laws. arXiv:1908.02347. arXiv 
 
 ## (TODO)
-- (TODO) 备份到gitee
+- (TODO) Add input interface
 - (TODO) Build automatic build using github action
