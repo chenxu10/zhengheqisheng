@@ -1,25 +1,24 @@
+import pytest
+from src.pricing.call_relative import call_price_ratio
 
-
-def call_price_ratio(K, K_anchor, C_anchor, alpha, spot):
-    """
-    Formula implemented from this article
-
-    https://antonismolski.medium.com/tail-options-pricing-under-power-law-with-code-fdb06b1f2567
-    """
-    return ((K-spot) / (K_anchor-spot)) ** (1 - alpha) * C_anchor
-
-
-def test_call_relative_pricing():
-    C1_anchor = 63.1
-    K1_anchor = 5670
-    K = 6795
-    SPOT = 5663
-    alpha_index = 3.2
-    guessed_price_under_power_laws = call_price_ratio(
-        K, K1_anchor, C1_anchor, alpha_index, SPOT)
-    market_price = 1060
-    print(guessed_price_under_power_laws)
-    assert market_price > guessed_price_under_power_laws
-
-if __name__ == "__main__":
-    test_call_relative_pricing()
+@pytest.mark.parametrize(
+    "K,anchor_strike,anchor_price,alpha,spot,market_price",
+    [
+        # Original test case
+        (6795, 5670, 63.1, 3.2, 5663, 1060),
+        # New case 1: Higher alpha value
+        (7000, 5670, 63.1, 3.5, 5663, 950),
+        # New case 2: Different anchor price
+        (6500, 5670, 60.0, 3.0, 5663, 500)
+    ]
+)
+def test_call_relative_pricing(K, anchor_strike, anchor_price, alpha, spot, market_price):
+    """Test power law pricing against market observations"""
+    guessed_price = call_price_ratio(
+        K=K,
+        K_anchor=anchor_strike,
+        C_anchor=anchor_price,
+        alpha=alpha,
+        spot=spot
+    )
+    assert market_price > guessed_price, f"Market price {market_price} should exceed model estimate {guessed_price:.2f}"
