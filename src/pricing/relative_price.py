@@ -1,3 +1,4 @@
+#bin/python
 def call_price_ratio(
     K: float,
     K_anchor: float,
