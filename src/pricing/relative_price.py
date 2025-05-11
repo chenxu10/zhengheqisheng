@@ -1,4 +1,4 @@
-#bin/python
+#!/usr/bin/env python3
 def call_price_ratio(
     K: float,
     K_anchor: float,
