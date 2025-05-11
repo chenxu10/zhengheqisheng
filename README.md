@@ -12,5 +12,7 @@
 1. Taleb, N. N., Yarckin, B., Mann, C., Delic, D., & Spitznagel, M. (2019). Tail option pricing under power laws. arXiv:1908.02347. arXiv 
 
 ## (TODO)
-- (TODO) Add input interface
+- ~~(DONE) Add input interface~~
 - (TODO) Build automatic build using github action
+- (TODO) Add feature of listening to market on current alpha
+- (TODO) Reuse code from thales trading bot to see historical alpha for seeking mispricing opportunity

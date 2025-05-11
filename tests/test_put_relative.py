@@ -18,4 +18,5 @@ def test_put_price_ratio_same_strike(
         alpha=alpha,
         spot=spot
     )
+    print("put ratio test is ", result)
     assert result < market_price
