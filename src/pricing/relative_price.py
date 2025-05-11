@@ -28,6 +28,11 @@ def put_price_ratio(
         alpha: float,
         spot: float
     ) -> float:
+        """
+        The issue with the formula is that for non-integer alphas, 
+        we get complex numbers. I did not expect that while reading the article, 
+        and I don’t exclude that my interpretation or implementation might be wrong.
+        """
         exp = (1-alpha)
         nominator = (K - spot)**exp - spot**exp * ((-exp)*K + spot)
         denominator = (K_anchor - spot)**exp - spot**exp * ((-exp)*K_anchor + spot)
