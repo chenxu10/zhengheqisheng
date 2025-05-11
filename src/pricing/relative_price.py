@@ -32,7 +32,7 @@ def put_price_ratio(
 
 def main():
     # Collect user inputs
-    c_or_p = input("Do you want to price for call or put? c put call and put for put :")
+    c_or_p = input("Do you want to price for call or put? c put call and put for put: ")
 
     if c_or_p == "c":
         K = float(input("Enter target strike price (K): ").strip())
