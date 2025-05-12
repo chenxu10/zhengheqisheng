@@ -13,6 +13,6 @@
 
 ## (TODO)
 - ~~(DONE) Add input interface~~
-- (TODO) Build automatic build using github action
+- ~~(TODO) Build automatic build using github action~~
 - (TODO) Add feature of listening to market on current alpha
 - (TODO) Reuse code from thales trading bot to see historical alpha for seeking mispricing opportunity
