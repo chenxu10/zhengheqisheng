@@ -23,6 +23,7 @@ def calculate_put_price_under_different_alpha(anchorPrice):
             prices.append(C_curr)
 
     put_price_lists_under_alpha[alpha] = prices
+    print(put_price_lists_under_alpha)
     return {
         3: [0.65,0.8],
         3.8:[0.2,0.4]
