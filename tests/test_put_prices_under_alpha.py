@@ -22,7 +22,7 @@ def calculate_put_price_under_different_alpha(anchorPrice):
             C_curr = put_price_ratio(K_2=K_curr, K_1=K_prev, K_1_price=C_prev, alpha=alpha)
             prices.append(C_curr)
 
-    put_price_lists_under_alpha[alpha] = prices
+        put_price_lists_under_alpha[alpha] = prices
     print("put prices lists under alpha is", put_price_lists_under_alpha)
     return {
         3: [0.65,0.8],
