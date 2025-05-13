@@ -1,5 +1,8 @@
 import numpy as np
 
+
+# guess the input of spot is not correct? 
+# solution using equation to solve a spot
 spot =208
 
 def put_price_ratio(K_2, K_1, K_1_price, alpha):
