@@ -27,9 +27,13 @@ def calculate_put_price_under_different_alpha(anchorPrice):
         prices = [anchorPrice]
         for i in range(len(strikes)):
             K_prev = strikes[i - 1]
+            print("K_prev",K_prev)
             K_curr = strikes[i]
+            print("K_curr",K_curr)
             C_prev = prices[-1]
+            print("C_prev",C_prev)
             C_curr = put_price_ratio(K_2=K_curr, K_1=K_prev, K_1_price=C_prev, alpha=alpha)
+            print("C_curr",C_curr)
             prices.append(C_curr)
 
         put_price_lists_under_alpha[alpha] = prices
