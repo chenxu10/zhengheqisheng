@@ -7,7 +7,7 @@ def put_price_ratio(K_2, K_1, K_1_price, alpha):
 
 def create_strike_lists(anchorStrike):
     filteredPuts = {
-        "strike": [160,170,180,190,200,210]
+        "strike": [210,200,190,180,180,160]
     }
     strikes = np.arange(min(filteredPuts["strike"]), anchorStrike+1,1)
     strikes = sorted(strikes, reverse=True)
