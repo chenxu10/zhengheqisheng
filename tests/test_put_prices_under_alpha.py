@@ -16,6 +16,7 @@ def create_strike_lists(anchorStrike):
 def calculate_put_price_under_different_alpha(anchorPrice):
     anchorStrike = 210
     strikes = create_strike_lists(anchorStrike)
+    print("strikes look like", strikes)
     
     put_price_lists_under_alpha = {}
     alpha_values = np.arange(3,3.8,0.2)
