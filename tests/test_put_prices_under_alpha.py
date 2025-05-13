@@ -39,7 +39,7 @@ def calculate_put_price_under_different_alpha(anchorPrice):
 
 
 def test_calculate_put_price_under_different_alpha():
-    anchorPrice = 0.99
+    anchorPrice = 1.58
     result = calculate_put_price_under_different_alpha(anchorPrice)
     expected = {
         3: [0.65,0.8],
