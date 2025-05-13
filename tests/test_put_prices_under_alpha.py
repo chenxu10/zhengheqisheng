@@ -5,7 +5,7 @@ def calculate_put_price_under_different_alpha(anchorPrice):
     filteredPuts = {
         "strike": [160,170,180,190,200,210]
     }
-    anchorStrike = 0.18
+    anchorStrike = 160
     print(filteredPuts["strike"])
     strikes = np.arange(min(filteredPuts["strike"]), anchorStrike+1,1)
     print("strikes are",strikes)
