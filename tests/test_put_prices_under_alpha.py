@@ -1,5 +1,9 @@
 import numpy as np
-from src.pricing.relative_price import put_price_ratio
+
+spot =210
+
+def put_price_ratio(K_2, K_1, K_1_price, alpha):
+    return K_1_price * ((K_2 - spot) / (K_1 - spot))**(1-alpha)
 
 def calculate_put_price_under_different_alpha(anchorPrice):
     filteredPuts = {
