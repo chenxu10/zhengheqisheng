@@ -19,6 +19,7 @@ def calculate_put_price_under_different_alpha(anchorPrice):
     print("strikes look like", strikes)
     
     put_price_lists_under_alpha = {}
+    alpha_values = [3]
     alpha_values = [3,3.2,3.4,3.6,3.8]
     prices = [anchorPrice]
     
