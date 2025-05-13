@@ -5,16 +5,17 @@ spot =210
 def put_price_ratio(K_2, K_1, K_1_price, alpha):
     return K_1_price * ((K_2 - spot) / (K_1 - spot))**(1-alpha)
 
-def calculate_put_price_under_different_alpha(anchorPrice):
+def create_strike_lists(anchorStrike):
     filteredPuts = {
         "strike": [160,170,180,190,200,210]
     }
-    anchorStrike = 210
-    print(filteredPuts["strike"])
     strikes = np.arange(min(filteredPuts["strike"]), anchorStrike+1,1)
-    print("strikes are",strikes)
     strikes = sorted(strikes, reverse=True)
-    print("strikes are",strikes)
+    return strikes
+
+def calculate_put_price_under_different_alpha(anchorPrice):
+    anchorStrike = 210
+    strikes = create_strike_lists(anchorStrike)
     
     put_price_lists_under_alpha = {}
     alpha_values = np.arange(3,3.8,0.2)
@@ -35,6 +36,7 @@ def calculate_put_price_under_different_alpha(anchorPrice):
         3: [0.65,0.8],
         3.8:[0.2,0.4]
     }
+
 
 def test_calculate_put_price_under_different_alpha():
     anchorPrice = 0.99
