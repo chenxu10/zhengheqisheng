@@ -1,6 +1,6 @@
 import numpy as np
 
-spot =210
+spot =208
 
 def put_price_ratio(K_2, K_1, K_1_price, alpha):
     return K_1_price * ((K_2 - spot) / (K_1 - spot))**(1-alpha)
