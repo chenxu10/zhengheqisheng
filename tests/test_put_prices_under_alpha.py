@@ -5,8 +5,8 @@ from sympy import symbols, Eq, solve
 # solution using equation to solve a spot
 spot = 205.55
 
-def put_price_ratio(K_2, K_1, K_1_price, alpha):
-    return K_1_price * ((K_2 - spot) / (K_1 - spot))**(1-alpha)
+def put_price_ratio(to_guess_strikeK, anchorStrikeK, price_at_anchor_strikeK, alpha):
+    return price_at_anchor_strikeK * ((to_guess_strikeK - spot) / (anchorStrikeK - spot))**(1-alpha)
 
 def create_strike_lists(anchorStrike):
     filteredPuts = {
@@ -24,23 +24,26 @@ def calculate_put_price_under_different_alpha(anchorPrice):
     
     put_price_lists_under_alpha = {}
     alpha_values = [3]
-    #alpha_values = [3,3.2,3.4,3.6,3.8]
     prices = [anchorPrice]
-    
-    for alpha in alpha_values:
-        prices = [anchorPrice]
-        print("prices are", prices)
-        for i in range(len(strikes)):
-            K_prev = strikes[i - 1]
-            print("K_prev is", K_prev)
-            K_curr = strikes[i]
-            print("K curr is", K_curr)
-            C_prev = prices[-1]
-            print("C_prev is", C_prev)
-            C_curr = put_price_ratio(K_2=K_curr,K_1=K_prev,K_1_price=C_prev,alpha=3)
-            print("C_curr is",C_curr)
-            prices.append(C_curr)
 
+    def guess_model_price_under_alpha(prices, strikes):
+        prices = [anchorPrice]
+        
+        for i in range(len(strikes)):
+            to_guess_strikeK = strikes[i]
+            anchorStrikeK = strikes[i - 1]
+            price_at_anchor_strikeK = prices[-1]
+            to_guess_model_pricing_at_strikeK = put_price_ratio(
+                to_guess_strikeK=to_guess_strikeK,
+                anchorStrikeK=anchorStrikeK,
+                price_at_anchor_strikeK=price_at_anchor_strikeK,
+                alpha=3)
+            prices.append(to_guess_model_pricing_at_strikeK)
+        
+        return strikes
+   
+    for alpha in alpha_values:
+        guess_model_price_under_alpha(prices, strikes)
         put_price_lists_under_alpha[alpha] = prices
     print("put prices lists under alpha is", put_price_lists_under_alpha)
     return {
