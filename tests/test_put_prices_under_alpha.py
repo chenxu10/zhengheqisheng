@@ -3,7 +3,7 @@ from sympy import symbols, Eq, solve
 
 # guess the input of spot is not correct? 
 # solution using equation to solve a spot
-spot =205.55
+spot = 205.55
 
 def put_price_ratio(K_2, K_1, K_1_price, alpha):
     return K_1_price * ((K_2 - spot) / (K_1 - spot))**(1-alpha)
@@ -14,11 +14,11 @@ def create_strike_lists(anchorStrike):
     }
     #strikes = np.arange(min(filteredPuts["strike"]), anchorStrike+1,1)
     #strikes = sorted(strikes, reverse=True)
-    strikes = [200,210]
+    strikes = [160,170,180,190,200,210]
     return strikes
 
 def calculate_put_price_under_different_alpha(anchorPrice):
-    anchorStrike = 210
+    anchorStrike = 211
     strikes = create_strike_lists(anchorStrike)
     print("strikes look like", strikes)
     
