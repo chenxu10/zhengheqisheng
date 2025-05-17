@@ -71,3 +71,15 @@ def test_equation_solver():
     spot_price_result = equation_solver(Eq(1.4*((200-x)/(210-x))**(1-3), 0.9))
     print("result is",spot_price_result)
     assert 199 <= spot_price_result < 206
+
+
+def test_market_price_smaller_than_theortical_value():
+    """
+    QQQ strike 415 on Jun/20 Put mark price at 0.40
+    """
+    anchorPrice = 10.64  #Anchor at 520 05/17' QQQ price
+    theortical_otm_put_value = calculate_put_price_under_different_alpha(
+        anchorPrice
+    )
+    qqq_415_put_june_20_market = 0.40
+    assert qqq_415_put_june_20_market < theortical_otm_put_value
