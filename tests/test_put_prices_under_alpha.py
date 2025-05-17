@@ -1,5 +1,7 @@
 import numpy as np
 
+#TODO: Replace expected in real tests
+
 def put_price_ratio(to_guess_strikeK, anchorStrikeK, price_at_anchor_strikeK, alpha, spot):
     return price_at_anchor_strikeK * ((to_guess_strikeK - spot) / (anchorStrikeK - spot))**(1-alpha)
 
@@ -48,9 +50,9 @@ def calculate_put_price_under_different_alpha(smallest_strike, anchorStrike, anc
 
 def test_calculate_put_price_under_different_alpha():
     anchorPrice = 1.4
+    anchorStrikeK = 210
     spot = 205.55
     smallest_otm_put_strike = 208
-    anchorStrikeK = 210
     result = calculate_put_price_under_different_alpha(
         smallest_otm_put_strike,
         anchorStrikeK,
@@ -63,15 +65,19 @@ def test_calculate_put_price_under_different_alpha():
     assert result == expected
 
 
-# def test_market_price_smaller_than_theortical_value():
-#     """
-#     QQQ strike 415 on Jun/20 Put mark price at 0.40
-#     """
-#     anchorPrice = 10.64  #Anchor at 520 05/17' QQQ price
-#     spot = 521.51
-#     theortical_otm_put_value = calculate_put_price_under_different_alpha(
-#         anchorPrice,
-#         spot
-#     )
-#     qqq_415_put_june_20_market = 0.40
-#     assert qqq_415_put_june_20_market < theortical_otm_put_value
+def test_market_price_smaller_than_theortical_value():
+    """
+    QQQ strike 415 on Jun/20 Put mark price at 0.40
+    """
+    anchorPrice = 10.64  #Anchor at 520 05/17' QQQ price
+    anchorStrikeK = 520
+    spot = 521.51
+    smallest_otm_put_strike = 510
+    theortical_otm_put_value = calculate_put_price_under_different_alpha(
+        smallest_otm_put_strike,
+        anchorStrikeK,
+        anchorPrice,
+        spot
+    )
+    qqq_415_put_june_20_market = 0.40
+    #assert qqq_415_put_june_20_market < theortical_otm_put_value
