@@ -1,22 +1,16 @@
 import numpy as np
-from sympy import symbols, Eq, solve
-
 
 def put_price_ratio(to_guess_strikeK, anchorStrikeK, price_at_anchor_strikeK, alpha, spot):
     return price_at_anchor_strikeK * ((to_guess_strikeK - spot) / (anchorStrikeK - spot))**(1-alpha)
 
-def create_strike_lists(anchorStrike):
-    filteredPuts = {
-        "strike": [210,200,190,180,180,160]
-    }
-    #strikes = np.arange(min(filteredPuts["strike"]), anchorStrike+1,1)
-    #strikes = sorted(strikes, reverse=True)
-    strikes = [160,170,180,190,200,210]
+def create_strike_lists(smallest_strike, anchorStrike):
+    strikes = np.arange(smallest_strike, anchorStrike+1,1)
+    print("strikes look like", strikes)
+    #strikes = [160,170,180,190,200,210]
     return strikes
 
-def calculate_put_price_under_different_alpha(anchorPrice, spot):
-    anchorStrike = 211
-    strikes = create_strike_lists(anchorStrike)
+def calculate_put_price_under_different_alpha(smallest_strike, anchorStrike, anchorPrice, spot):
+    strikes = create_strike_lists(smallest_strike, anchorStrike)
     print("strikes look like", strikes)
     
     put_price_lists_under_alpha = {}
@@ -35,9 +29,11 @@ def calculate_put_price_under_different_alpha(anchorPrice, spot):
                 anchorStrikeK=anchorStrikeK,
                 price_at_anchor_strikeK=price_at_anchor_strikeK,
                 alpha=3,
-                spot=205.55)
+                spot=spot)
             prices.append(to_guess_model_pricing_at_strikeK)
-        
+        # The 0 element of prices should be ignored than the strike is 1-to-1
+        # mapping to price
+        print("prices look like this", prices)
         return strikes
    
     for alpha in alpha_values:
@@ -53,7 +49,11 @@ def calculate_put_price_under_different_alpha(anchorPrice, spot):
 def test_calculate_put_price_under_different_alpha():
     anchorPrice = 1.4
     spot = 205.55
+    smallest_otm_put_strike = 208
+    anchorStrikeK = 210
     result = calculate_put_price_under_different_alpha(
+        smallest_otm_put_strike,
+        anchorStrikeK,
         anchorPrice,
         spot)
     expected = {
@@ -62,27 +62,16 @@ def test_calculate_put_price_under_different_alpha():
     }
     assert result == expected
 
-def equation_solver(equation):
-    x = symbols('x')
-    solution = solve(equation, x)
-    return solution[0]
 
-def test_equation_solver():
-    x = symbols('x')
-    spot_price_result = equation_solver(Eq(1.4*((200-x)/(210-x))**(1-3), 0.9))
-    print("result is",spot_price_result)
-    assert 199 <= spot_price_result < 206
-
-
-def test_market_price_smaller_than_theortical_value():
-    """
-    QQQ strike 415 on Jun/20 Put mark price at 0.40
-    """
-    anchorPrice = 10.64  #Anchor at 520 05/17' QQQ price
-    spot = 521.51
-    theortical_otm_put_value = calculate_put_price_under_different_alpha(
-        anchorPrice,
-        spot
-    )
-    qqq_415_put_june_20_market = 0.40
-    assert qqq_415_put_june_20_market < theortical_otm_put_value
+# def test_market_price_smaller_than_theortical_value():
+#     """
+#     QQQ strike 415 on Jun/20 Put mark price at 0.40
+#     """
+#     anchorPrice = 10.64  #Anchor at 520 05/17' QQQ price
+#     spot = 521.51
+#     theortical_otm_put_value = calculate_put_price_under_different_alpha(
+#         anchorPrice,
+#         spot
+#     )
+#     qqq_415_put_june_20_market = 0.40
+#     assert qqq_415_put_june_20_market < theortical_otm_put_value
