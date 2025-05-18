@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 #TODO: Replace expected in real tests
 
@@ -19,6 +20,10 @@ def calculate_put_price_under_different_alpha(smallest_strike, anchorStrike, anc
     alpha_values = [3]
     prices = [anchorPrice]
 
+    def filter_out_zero_element_starting_anchor(prices):
+        prices = prices[1:]
+        return prices
+
     def guess_model_price_under_alpha(prices, strikes):
         prices = [anchorPrice]
         
@@ -33,19 +38,14 @@ def calculate_put_price_under_different_alpha(smallest_strike, anchorStrike, anc
                 alpha=3,
                 spot=spot)
             prices.append(to_guess_model_pricing_at_strikeK)
-        # The 0 element of prices should be ignored than the strike is 1-to-1
-        # mapping to price
-        print("prices look like this", prices)
-        return strikes
+        prices = filter_out_zero_element_starting_anchor(prices)
+        return prices
    
     for alpha in alpha_values:
-        guess_model_price_under_alpha(prices, strikes)
+        prices = guess_model_price_under_alpha(prices, strikes)
         put_price_lists_under_alpha[alpha] = prices
-    print("put prices lists under alpha is", put_price_lists_under_alpha)
-    return {
-        3: [0.65,0.8],
-        3.8:[0.2,0.4]
-    }
+
+    return put_price_lists_under_alpha
 
 
 def test_calculate_put_price_under_different_alpha():
@@ -58,11 +58,12 @@ def test_calculate_put_price_under_different_alpha():
         anchorStrikeK,
         anchorPrice,
         spot)
+
     expected = {
-        3: [0.65,0.8],
-        3.8:[0.2,0.4]
+        3: [4.62, 2.33, 1.40]
     }
-    assert result == expected
+    # Round both result and expected values to 2 decimal places
+    assert {k: [round(num, 2) for num in v] for k, v in result.items()} == expected
 
 
 def test_market_price_smaller_than_theortical_value():
