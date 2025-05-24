@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-#TODO: Replace expected in real tests
+#TODO:Try to use the equation solving pattern to reproduce the plot of blog  
 
 def put_price_ratio(to_guess_strikeK, anchorStrikeK, price_at_anchor_strikeK, alpha, spot):
     return price_at_anchor_strikeK * ((to_guess_strikeK - spot) / (anchorStrikeK - spot))**(1-alpha)
@@ -45,6 +45,7 @@ def calculate_put_price_under_different_alpha(smallest_strike, anchorStrike, anc
         prices = guess_model_price_under_alpha(prices, strikes)
         put_price_lists_under_alpha[alpha] = prices
 
+    print("put prices", put_price_lists_under_alpha)
     return put_price_lists_under_alpha
 
 
@@ -52,6 +53,7 @@ def test_calculate_put_price_under_different_alpha():
     anchorPrice = 1.4
     anchorStrikeK = 210
     spot = 205.55
+    #smallest_otm_put_strike = 160
     smallest_otm_put_strike = 208
     result = calculate_put_price_under_different_alpha(
         smallest_otm_put_strike,
