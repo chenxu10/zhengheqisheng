@@ -1,4 +1,4 @@
-import pandas as pd # type: ignore
+import pandas as pd 
 import datetime as dt
 
 def clean_txt(file_path):
@@ -55,3 +55,10 @@ def clean_txt(file_path):
     df_combined["tau"] = df_combined["dte"] / 360
     df_combined["mid"] = 0.5* (df_combined["ask"] + df_combined["bid"])
     return df_combined
+
+def main():
+    data = clean_txt("data/spy_eod_201812.txt")
+    print(data)
+
+if __name__ == "__main__":
+    main()
