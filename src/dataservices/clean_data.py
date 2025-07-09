@@ -58,6 +58,7 @@ def clean_txt(file_path):
 
 def main():
     data = clean_txt("data/spy_eod_201812.txt")
+    data.to_csv("data/spy_eod_201812.csv")
     print(data)
 
 if __name__ == "__main__":
