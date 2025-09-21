@@ -102,7 +102,7 @@ def estimate_gpd_alpha_mle(data: np.ndarray,
     
     return results
 
-def plot_gpd_fit(data: np.ndarray, results: Dict, tail: str = "upper"):
+def plot_gpd_fit(data: np.ndarray, results: Dict, tail: str = "upper_tail"):
     """绘制GPD拟合效果图"""
     if tail not in results or 'error' in results[tail]:
         print(f"No valid results for {tail} tail")
