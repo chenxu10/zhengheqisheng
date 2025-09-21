@@ -40,8 +40,7 @@ def test_estimate_alpha():
 if __name__ == "__main__":
     max_daily_price_change = get_ndx100_daily_returns(period="max")
     print(max_daily_price_change)
-    #max_daily_price_change = download_ndx_100_data_pct_change()
-    #print(max_daily_price_change)
+
     #estimated_alpha, loc, scale = estimate_alpha_by_mle(max_daily_price_change)
     #print(estimated_alpha)
     #test_estimate_alpha()
