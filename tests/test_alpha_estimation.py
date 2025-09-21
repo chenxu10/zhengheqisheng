@@ -12,19 +12,20 @@ from scipy.optimize import minimize
 import yfinance as yf
 from curl_cffi import requests
 import time
+import numpy as np
 
 def estimate_alpha_by_mle(excess_losses):
     alpha_est, loc_est, scale_est = genpareto.fit(excess_losses)
     return alpha_est, loc_est, scale_est
 
-def get_prices_daily_change(instrument):
+def get_ndx100_daily_returns(period) -> np.ndarray:
+    """获取NDX100 (QQQ) 的日收益率数据"""
     session = requests.Session(impersonate="chrome")
-    instrument = yf.Ticker(instrument, session=session)
-    instru_hist = instrument.history(period="max")
-    prices = instru_hist['Close']
-    daily_returns = prices.pct_change(1)[1:]
-    daily_returns_list = daily_returns.tolist()
-    return daily_returns_list
+    ticker = yf.Ticker("QQQ", session=session)
+    hist = ticker.history(period=period)
+    prices = hist['Close']
+    daily_returns = prices.pct_change(1).dropna()
+    return daily_returns.values
 
 def download_ndx_100_data_pct_change():
     pdc = get_prices_daily_change("QQQ")
@@ -37,7 +38,10 @@ def test_estimate_alpha():
     assert abs(estimated_alpha - true_alpha) < 0.05
 
 if __name__ == "__main__":
-    max_daily_price_change = download_ndx_100_data_pct_change()
-    estimated_alpha, loc, scale = estimate_alpha_by_mle(max_daily_price_change)
-    print(estimated_alpha)
+    max_daily_price_change = get_ndx100_daily_returns(period="max")
+    print(max_daily_price_change)
+    #max_daily_price_change = download_ndx_100_data_pct_change()
+    #print(max_daily_price_change)
+    #estimated_alpha, loc, scale = estimate_alpha_by_mle(max_daily_price_change)
+    #print(estimated_alpha)
     #test_estimate_alpha()
