@@ -102,10 +102,67 @@ def estimate_gpd_alpha_mle(data: np.ndarray,
     
     return results
 
+def plot_gpd_fit(data: np.ndarray, results: Dict, tail: str = "upper"):
+    """绘制GPD拟合效果图"""
+    if tail not in results or 'error' in results[tail]:
+        print(f"No valid results for {tail} tail")
+        return
+    
+    tail_results = results[tail]
+    threshold = tail_results['threshold']
+    shape = tail_results['shape']
+    scale = tail_results['scale']
+    alpha = tail_results['alpha']
+    
+    # 准备数据
+    if tail == "upper":
+        relevant_data = data[data > 0]
+        title = f"Upper Tail GPD Fit (α = {alpha:.2f})"
+    else:
+        relevant_data = np.abs(data[data < 0])
+        title = f"Lower Tail GPD Fit (α = {alpha:.2f})"
+    
+    excesses = relevant_data[relevant_data > threshold] - threshold
+    
+    if len(excesses) == 0:
+        return
+        
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    
+    # 1. 经验 vs 理论CDF
+    sorted_excesses = np.sort(excesses)
+    empirical_cdf = np.arange(1, len(sorted_excesses) + 1) / len(sorted_excesses)
+    theoretical_cdf = genpareto.cdf(sorted_excesses, shape, scale=scale)
+    
+    ax1.plot(sorted_excesses, empirical_cdf, 'bo-', alpha=0.6, markersize=3, label='Empirical')
+    ax1.plot(sorted_excesses, theoretical_cdf, 'r-', linewidth=2, label='GPD Theoretical')
+    ax1.set_xlabel('Excess Loss')
+    ax1.set_ylabel('CDF')
+    ax1.set_title('CDF Comparison')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+    
+    # 2. 生存函数对数图
+    survival_empirical = 1 - empirical_cdf
+    survival_theoretical = 1 - theoretical_cdf
+    
+    ax2.loglog(sorted_excesses, survival_empirical, 'bo-', alpha=0.6, markersize=3, label='Empirical')
+    ax2.loglog(sorted_excesses, survival_theoretical, 'r-', linewidth=2, label='GPD Theoretical')
+    ax2.set_xlabel('Excess Loss')
+    ax2.set_ylabel('Survival Probability')
+    ax2.set_title('Log-Log Survival Plot')
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+    
+    plt.suptitle(title)
+    plt.tight_layout()
+    plt.show()
+
 if __name__ == "__main__":
     returns = get_ndx100_daily_returns(period="max")
     print(returns)
     threshold_percentile = 95
+    plot_results = True
     # GPD拟合
     results = estimate_gpd_alpha_mle(returns, "both", threshold_percentile)
     
@@ -129,6 +186,14 @@ if __name__ == "__main__":
         print(f"  Scale (σ): {lower['scale']:.4f}")
         print(f"  阈值: {lower['threshold']:.4f}")
         print(f"  超额观测数: {lower['n_excesses']}")
+
+    if plot_results:
+        if 'upper_tail' in results:
+            plot_gpd_fit(returns, results, "upper")
+        if 'lower_tail' in results:
+            plot_gpd_fit(returns, results, "lower")
+    
+
     #estimated_alpha, loc, scale = estimate_alpha_by_mle(max_daily_price_change)
     #print(estimated_alpha)
     #test_estimate_alpha()
