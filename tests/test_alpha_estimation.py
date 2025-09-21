@@ -26,10 +26,6 @@ def get_ndx100_daily_returns(period) -> np.ndarray:
     prices = hist['Close']
     daily_returns = prices.pct_change(1).dropna()
     return daily_returns.values
-
-def download_ndx_100_data_pct_change():
-    pdc = get_prices_daily_change("QQQ")
-    return pdc
    
 def test_estimate_alpha():
     true_alpha = 3.4
