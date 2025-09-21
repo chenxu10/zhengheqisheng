@@ -160,7 +160,6 @@ def plot_gpd_fit(data: np.ndarray, results: Dict, tail: str = "upper_tail"):
 
 if __name__ == "__main__":
     returns = get_ndx100_daily_returns(period="max")
-    print(returns)
     threshold_percentile = 95
     plot_results = True
     # GPD拟合
@@ -187,14 +186,3 @@ if __name__ == "__main__":
         print(f"  Scale (σ): {lower['scale']:.4f}")
         print(f"  阈值: {lower['threshold']:.4f}")
         print(f"  超额观测数: {lower['n_excesses']}")
-
-    if plot_results:
-        if 'upper_tail' in results:
-            plot_gpd_fit(returns, results, "upper")
-        if 'lower_tail' in results:
-            plot_gpd_fit(returns, results, "lower")
-    
-
-    #estimated_alpha, loc, scale = estimate_alpha_by_mle(max_daily_price_change)
-    #print(estimated_alpha)
-    #test_estimate_alpha()
