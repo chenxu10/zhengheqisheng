@@ -165,6 +165,7 @@ if __name__ == "__main__":
     plot_results = True
     # GPD拟合
     results = estimate_gpd_alpha_mle(returns, "both", threshold_percentile)
+    print(results)
     
     # 输出结果
     print(f"\n=== GPD Alpha参数估计 (阈值: {threshold_percentile}%) ===")
