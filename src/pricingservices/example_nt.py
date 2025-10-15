@@ -14,9 +14,11 @@ Original file is located at
 import sys
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg') 
 import matplotlib.pyplot as plt
 import os
-sys.path.append(os.path.abspath(r'C:\Users\anton\VSCode_projects'))
+# sys.path.append(os.path.abspath(r'C:\Users\anton\VSCode_projects'))
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -26,12 +28,12 @@ plt.style.use('ggplot')
 plt.rcParams['figure.figsize'] = (10, 5)
 
 import pricing
-import clean_data
+import src.dataservices.clean_data as clean_data
 import datetime as dt
 
 from py_vollib.black_scholes_merton.implied_volatility import implied_volatility
 
-file_path = r"C:\Users\anton\Documents\data\spy_eod_raw\spy_eod_2018\spy_eod_201812.txt"
+file_path = r"data/spy_eod_201812.txt"
 
 df_clean = clean_data.clean_txt(file_path)
 df_clean["rate"] = 0.02
@@ -44,11 +46,14 @@ df_clean['IV_ask'] = df_clean.apply(pricing.implied_volatilityDF, axis=1, args=(
 df_clean['IV_bid'] = df_clean.apply(pricing.implied_volatilityDF, axis=1, args=("bid",))
 
 quote_date = dt.date(2018, 12, 31)
-dte_filter = 46
+dte_filter = 46 # data until expiration
+
+df_clean.to_csv("data/spy_eod_201812.csv")
 
 df_puts = df_clean[df_clean.right == "put"]
 df_calls = df_clean[df_clean.right == "call"]
 df_puts_filtered = df_puts.query("Quote_Date == @quote_date and dte == @dte_filter" )
+print("df puts", df_puts_filtered)
 df_calls_filtered = df_calls.query("Quote_Date == @quote_date and dte == @dte_filter" )
 
 # from datetime import datetime, timedelta
@@ -116,6 +121,7 @@ pricing.nassim_price_call(filteredCalls, optimal_call_ask, "ask", min_price)
 plt.plot(filteredCalls.bid.values, label = "bid")
 plt.plot(filteredCalls.ask.values, label = "ask")
 plt.plot(pricing.nassim_price_call(filteredCalls, optimal_call_ask, "ask", min_price), label = "nassim ask", color = "black")
+plt.savefig("figures/nassim_ask.png")
 # plt.plot(pricing.nassim_price_call(filteredCalls, optimal_call_bid, "bid", min_price), label = "bid")
 plt.legend()
 
