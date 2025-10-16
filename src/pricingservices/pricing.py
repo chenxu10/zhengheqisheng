@@ -1,14 +1,14 @@
 import pandas as pd # type: ignore
 import datetime as dt
+import numpy as np # type: ignore
+
+from py_vollib.black_scholes_merton.implied_volatility import implied_volatility # type: ignore
+from scipy.stats import norm # type: ignore
 
 def find_ATM_strike(df, spot):
     strike_location = (df["strike"] - spot).abs().sort_values().index[0]
     ATM_strike = df.loc[strike_location]["strike"]
     return ATM_strike
-
-import numpy as np # type: ignore
-from py_vollib.black_scholes_merton.implied_volatility import implied_volatility # type: ignore
-from scipy.stats import norm # type: ignore
 
 def implied_volatilityDF(row, price_col):
     S_0 = row["close"]
