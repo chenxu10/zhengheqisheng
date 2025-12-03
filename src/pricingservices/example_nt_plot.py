@@ -15,6 +15,7 @@ plt.style.use('ggplot')
 plt.rcParams['figure.figsize'] = (10, 5)
 
 from py_vollib.black_scholes_merton.implied_volatility import implied_volatility
+from scipy.optimize import minimize_scalar
 
 """
 Given an data set 
@@ -44,9 +45,6 @@ IV_bid      │ Implied volatility calculated from bid price
 ════════════╧══════════════════════════════════════════════════════════════════════════
 """
 
-df_puts_filtered = pd.read_csv("data/df_puts_2018_filtered.csv")
-df_calls_filtered = pd.read_csv("data/df_calls_2018_filtered.csv")
-
 def find_spot_price_for_spy(df_puts_filtered):
     spot = float(df_puts_filtered['close'].iloc[0])
     return spot
@@ -54,16 +52,6 @@ def find_spot_price_for_spy(df_puts_filtered):
 def find_ATM_strike(df_puts_filtered, spot):
     ATM_strike = pricing.find_ATM_strike(df_puts_filtered, spot)
     return ATM_strike
-
-spot = find_spot_price_for_spy(df_puts_filtered)
-ATM_strike = find_ATM_strike(df_puts_filtered, spot)
-
-assert  spot - 1 < ATM_strike < spot + 1, "ATM strike in this region"
-
-ATM_row = df_puts_filtered[df_puts_filtered["strike"] == ATM_strike]
-sigma_move = 1
-tau  = ATM_row.tau.iloc[0]
-ATM_iv = ATM_row["IV_bid"].iloc[0]
 
 def calculate_upper_and_lower_bound_of_strike_to_plot(tau, ATM_iv):
     """
@@ -73,14 +61,29 @@ def calculate_upper_and_lower_bound_of_strike_to_plot(tau, ATM_iv):
     higher_bound = spot * np.exp(1*ATM_iv*np.sqrt(tau))
     return lower_bound, higher_bound
 
+
+df_puts_filtered = pd.read_csv("data/df_puts_2018_filtered.csv")
+df_calls_filtered = pd.read_csv("data/df_calls_2018_filtered.csv")
+spot = find_spot_price_for_spy(df_puts_filtered)
+ATM_strike = find_ATM_strike(df_puts_filtered, spot)
+
+print("spot price is", spot)
+print("atm strike price is", ATM_strike)
+
+assert  spot - 1 < ATM_strike < spot + 1, "ATM strike in this region"
+
+ATM_row = df_puts_filtered[df_puts_filtered["strike"] == ATM_strike]
+sigma_move = 1
+tau  = ATM_row.tau.iloc[0]
+ATM_iv = ATM_row["IV_bid"].iloc[0]
 lower_bound, higher_bound = calculate_upper_and_lower_bound_of_strike_to_plot(
     tau, ATM_iv
 )
+print("lower bound atnd upper bound of stikes are {} and {}".format(lower_bound, higher_bound))
 
 filteredPuts = df_puts_filtered[df_puts_filtered.strike <= lower_bound]
 filteredCalls = df_calls_filtered[df_calls_filtered.strike >= higher_bound]
 
-from scipy.optimize import minimize_scalar
 
 min_price = 0.05
 
