@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 #TODO:Try to use the equation solving pattern to reproduce the plot of blog  
 
