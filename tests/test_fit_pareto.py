@@ -6,7 +6,6 @@ from src.probabilityservices import power_law_class as plc
 
 def test_pareto_alpha():
     true_alpha = 1.16
-    true_alpha_std = np.std(true_alpha)
     n_samples = 10000
     exceed_threshold = 0.9
     n_tail = n_samples * (1 - exceed_threshold) 
