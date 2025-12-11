@@ -50,4 +50,21 @@ if __name__ == "__main__":
     xi, loc, beta = params 
     print(f"Tail index ξ = {xi:.3f}, Scale β = {beta:.3f}")
 
+    # Shape ξ from GPD
+    α = 1/xi if xi > 0 else float('inf')  # Power-law exponent α = 1/ξ
+    print(f"GPD: ξ={xi:.3f}, β={beta:.3f} → Power-law α={α:.3f}")
+
+    # Plot hisgram
+    counts, bins = np.histogram(excess, bins=50, density=True)
+    centers = (bins[:-1] + bins[1:])/2
+    plt.loglog(centers, counts, 'o', label='Empirical', alpha=0.7)
+    plt.show()
+
+    # Power-law PDF: p(x) = C * x^{-α_density}
+    C = (α - 1) * centers[0]**(α - 1)
+    plt.loglog(centers, C * centers**(-α), 'r-', label=f'α={α:.2f}')
+    plt.legend(); plt.xlabel('Excess Return'); plt.ylabel('Density'); plt.show()
+    plt.show()
+
+
     
