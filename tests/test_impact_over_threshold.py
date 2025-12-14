@@ -10,6 +10,15 @@ def mk_overthreshold_with(alpha, p):
     """
     Value over probability threshold contributions to target
     share of whole value
+
+    The formula is derived via two steps:
+
+    Find out the survival function of Pareto 80/20.
+
+    Expectation larget than k use integral divide who expectations
+
+    Details can de found in this youtube link
+    https://www.youtube.com/watch?v=XhTHG3QmVwM&list=PLMV8UXQuOWKPAIjvnyMN2317LHF3ydvnG&index=11
     """
     return p ** ((alpha - 1) / alpha)
 
