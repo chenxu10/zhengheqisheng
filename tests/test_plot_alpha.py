@@ -1,11 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import pareto
+from scipy import stats
 
-def calculate_survival_probability(sorted_data):
-    n = len(sorted_data)
-    survival_prob = 1 - np.arange(1, n + 1) / n
-    return survival_prob
 
 def generate_simulate_prices_given_alpha(alpha, size):
     """
@@ -61,6 +58,10 @@ def generate_simulate_prices_given_alpha(alpha, size):
     
     return prices
 
+def create_emprc_survive_function(data):
+    res = stats.ecdf(data)
+    emp_survival_function = res.sf
+    return emp_survival_function
 
 def test_generate_simulate_prices_given_alpha():
     alpha = 3
@@ -69,6 +70,11 @@ def test_generate_simulate_prices_given_alpha():
     print(generated_x)
     assert len(generated_x) == 252
 
+
+def test_empirical_survival_functiokn():
+    data = np.random.normal(1,0.2,10)
+    surviv_f = create_emprc_survive_function(data)
+    assert surviv_f.probabilities.any() > 0
 
 def plot_empirical_survival_function():
     import numpy as np
@@ -79,8 +85,7 @@ def plot_empirical_survival_function():
     data = np.random.normal(0.0005, 0.012, 252)
 
     # Calculate the ECDF and E-Survival Function
-    res = stats.ecdf(data)
-    emp_survival_function = res.sf
+    emp_survival_function = create_emprc_survive_function(data)
 
     # You can evaluate the survival function at specific time points
     time_points = np.sort(np.unique(data))
@@ -94,6 +99,7 @@ def plot_empirical_survival_function():
     plt.legend()
     plt.grid(True)
     plt.show()
+
 
 
 if __name__ == "__main__":
