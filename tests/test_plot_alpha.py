@@ -68,3 +68,33 @@ def test_generate_simulate_prices_given_alpha():
     generated_x = generate_simulate_prices_given_alpha(alpha, size)
     print(generated_x)
     assert len(generated_x) == 252
+
+
+def plot_empirical_survival_function():
+    import numpy as np
+    from scipy import stats
+    import matplotlib.pyplot as plt
+
+    # Your empirical data (e.g., event times in hours, days, etc.)
+    data = np.random.normal(0.0005, 0.012, 252)
+
+    # Calculate the ECDF and E-Survival Function
+    res = stats.ecdf(data)
+    emp_survival_function = res.sf
+
+    # You can evaluate the survival function at specific time points
+    time_points = np.sort(np.unique(data))
+    survival_probabilities = emp_survival_function.probabilities
+
+    # Plotting the empirical survival function
+    plt.step(time_points, survival_probabilities, where='post', label='Empirical Survival Function')
+    plt.xlabel('Time (t)')
+    plt.ylabel('S(t) = P(T > t)')
+    plt.title('Empirical Survival Function')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+if __name__ == "__main__":
+    plot_empirical_survival_function()
