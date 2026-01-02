@@ -6,7 +6,7 @@ from scipy import stats
 
 def generate_simulate_prices_given_alpha(alpha, size):
     """
-    Generate simulated S&P 500 prices using a mixture of normal and Pareto distributions.
+    Generate simulated data prices using a mixture of normal and Pareto distributions.
     
     Parameters:
     -----------
@@ -24,7 +24,8 @@ def generate_simulate_prices_given_alpha(alpha, size):
     INITIAL_PRICE = 100
     NORMAL_MEAN = 0.0005      # ~12.6% annual return
     NORMAL_STD = 0.012        # ~19% annual volatility
-    MIX_RATIO = 0.85          # 85% normal, 15% Pareto mixture
+    #MIX_RATIO = 0.85          # 85% normal, 15% Pareto mixture
+    MIX_RATIO = 0.7          # 85% normal, 15% Pareto mixture
     PARETO_SCALE = 0.01       # Scale for Pareto distribution
     RISK_ADJUSTMENT = 0.3     # Scale down Pareto extremes
     
@@ -74,15 +75,13 @@ def test_generate_simulate_prices_given_alpha():
 def test_empirical_survival_functiokn():
     data = np.random.normal(1,0.2,10)
     surviv_f = create_emprc_survive_function(data)
-    assert surviv_f.probabilities.any() > 0
+    assert 0 < surviv_f.probabilities.any() <= 1
 
 def plot_empirical_survival_function():
-    import numpy as np
-    from scipy import stats
-    import matplotlib.pyplot as plt
 
     # Your empirical data (e.g., event times in hours, days, etc.)
-    data = np.random.normal(0.0005, 0.012, 252)
+    #data = np.random.normal(0, 1, 252)
+    data = generate_simulate_prices_given_alpha(3, 252)
 
     # Calculate the ECDF and E-Survival Function
     emp_survival_function = create_emprc_survive_function(data)
