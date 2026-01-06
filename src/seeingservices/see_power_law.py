@@ -30,6 +30,13 @@ def generate_transformative_power_law_samples(alpha, x_min=1.0, size=1000):
     
     return power_law_samples
 
+def create_log_space_bins(x_min, samples) -> np.ndarray:
+    """
+    Creates an array of numbers that are evenly distrbuted on log space
+    """
+    bins = np.logspace(np.log10(x_min), np.log10(np.max(samples)), 50)
+    return bins
+
 # 测试代码
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
@@ -37,7 +44,7 @@ if __name__ == "__main__":
     # 生成样本
     alpha = 2.5  # 幂律指数
     x_min = 1.0  # 下限
-    samples = generate_transformative_power_law_samples(alpha, x_min, 10000)
+    samples = generate_transformative_power_law_samples(alpha, x_min, 100000)
     
     # 绘制直方图
     plt.figure(figsize=(10, 6))
@@ -52,9 +59,7 @@ if __name__ == "__main__":
     
     plt.subplot(1, 2, 2)
     # 对数对数坐标图，幂律分布应该显示为直线
-    hist, bin_edges = np.histogram(samples, bins=np.logspace(np.log10(x_min), 
-                                                            np.log10(np.max(samples)), 
-                                                            50), density=True)
+    hist, bin_edges = np.histogram(samples, bins=create_log_space_bins(x_min, samples),density=True)
     bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
     plt.loglog(bin_centers[hist > 0], hist[hist > 0], 'o-', alpha=0.7)
     plt.xlabel('x (log scale)')
