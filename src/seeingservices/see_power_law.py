@@ -90,7 +90,8 @@ def plot_linear_histogram(samples, ax=None):
     if ax is None:
         ax = plt.gca()
 
-    ax.hist(samples, bins=100, density=True, alpha=0.7, color='blue')
+    ax.hist(samples, bins=30, density=True, alpha=0.7, color='blue')
+    ax.set_xlim(left=None, right=max(samples) + 1000)
     ax.set_xlabel('x')
     ax.set_ylabel('Probability density')
     ax.set_title('Power-law distribution (linear scale)')
@@ -215,7 +216,7 @@ def print_sample_statistics(stats):
 if __name__ == "__main__":
     alpha = 2.5  # 幂律指数
     x_min = 1.0  # 下限
-    samples = generate_transformative_power_law_samples(alpha, x_min, 100000)
+    samples = generate_transformative_power_law_samples(alpha, x_min, 1000000)
 
     # 绘制直方图
     fig = plt.figure(figsize=(10, 6))
