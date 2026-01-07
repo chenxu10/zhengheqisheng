@@ -15,13 +15,17 @@ Author: Xu.Shen<xs286@cornell.edu>
 """
 
 import numpy as np
-from scipy.stats import uniform
+from scipy.stats import uniform, norm
 import matplotlib.pyplot as plt
 from src.dataservices.fetch_data import get_returns
 
 def uniform_sample_r(loc, scale, size):
     """生成均匀分布的随机数"""
     return uniform.rvs(loc=loc, scale=scale, size=size)
+
+def generate_gaussian_samples(mu=0, sigma=1, size=1000000):
+    samples = norm.rvs(loc=mu, scale=sigma, size=size)
+    return np.abs(samples)
 
 def generate_transformative_power_law_samples(alpha, x_min=1.0, size=1000):
     """使用变换方法生成幂律分布样本
@@ -233,27 +237,38 @@ def print_sample_statistics(stats):
 if __name__ == "__main__":
     alpha = 2.5  # 幂律指数
     x_min = 1
-    samples = generate_transformative_power_law_samples(alpha, x_min, 1000000)
-    # 绘制直方图
-    fig = plt.figure(figsize=(10, 6))
 
-    # 使用对数坐标显示幂律分布的特征
+    gaussian_samples = generate_gaussian_samples(0,1,1000000)
+    power_law_samples = generate_transformative_power_law_samples(alpha, x_min, 1000000)
+
+    fig = plt.figure(figsize=(10, 6))
     ax1 = plt.subplot(2, 2, 1)
-    plot_linear_histogram(samples, ax=ax1)
+    plot_linear_histogram(gaussian_samples, ax=ax1)
 
     ax2 = plt.subplot(2, 2, 2)
-    plot_loglog_histogram(samples, x_min, ax=ax2)
+    plot_loglog_histogram(gaussian_samples, np.min(gaussian_samples), ax=ax2)
 
     ax3 = plt.subplot(2, 2, 3)
-    plot_loglog_histogram_log_binning(samples, x_min, ax=ax3)
+    plot_loglog_histogram_log_binning(gaussian_samples, np.min(gaussian_samples), ax=ax3)
+
+    # Plot power law samples
+    fig = plt.figure(figsize=(10, 6))
+    ax1 = plt.subplot(2, 2, 1)
+    plot_linear_histogram(power_law_samples, ax=ax1)
+
+    ax2 = plt.subplot(2, 2, 2)
+    plot_loglog_histogram(power_law_samples, x_min, ax=ax2)
+
+    ax3 = plt.subplot(2, 2, 3)
+    plot_loglog_histogram_log_binning(power_law_samples, x_min, ax=ax3)
 
     plt.tight_layout()
     plt.show()
 
-    stats = calculate_sample_statistics(samples, x_min)
+    stats = calculate_sample_statistics(power_law_samples, x_min)
     print_sample_statistics(stats)
     
-    # Fetch SPY daily returns data
+    # Plot empirical SPY daily returns
     data = get_returns('SPY', 1)  # Daily returns (period_length=1)
     samples = np.abs(data.values)  # Use absolute values for power law analysis
     ax = plt.gca()
