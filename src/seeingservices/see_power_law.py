@@ -37,43 +37,118 @@ def create_log_space_bins(x_min, samples) -> np.ndarray:
     bins = np.logspace(np.log10(x_min), np.log10(np.max(samples)), 50)
     return bins
 
+def plot_linear_histogram(samples, ax=None):
+    """
+    Plot linear scale histogram of power-law samples
+
+    参数:
+    samples: Power-law distributed samples
+    ax: Matplotlib axes object. If None, uses current axes
+
+    返回:
+    ax: The axes object used for plotting
+    """
+    import matplotlib.pyplot as plt
+
+    if ax is None:
+        ax = plt.gca()
+
+    ax.hist(samples, bins=100, density=True, alpha=0.7, color='blue')
+    ax.set_xlabel('x')
+    ax.set_ylabel('Probability density')
+    ax.set_title('Power-law distribution (linear scale)')
+    ax.grid(True, alpha=0.3)
+
+    return ax
+
+def plot_loglog_histogram(samples, x_min, ax=None):
+    """
+    Plot log-log scale histogram of power-law samples
+
+    参数:
+    samples: Power-law distributed samples
+    x_min: Minimum value of the distribution
+    ax: Matplotlib axes object. If None, uses current axes
+
+    返回:
+    ax: The axes object used for plotting
+    hist: Histogram values
+    bin_centers: Bin center values
+    """
+    import matplotlib.pyplot as plt
+
+    if ax is None:
+        ax = plt.gca()
+
+    # Calculate histogram with log-spaced bins
+    hist, bin_edges = np.histogram(samples, bins=create_log_space_bins(x_min, samples), density=True)
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    # Plot only positive histogram values
+    ax.loglog(bin_centers[hist > 0], hist[hist > 0], 'o-', alpha=0.7)
+    ax.set_xlabel('x (log scale)')
+    ax.set_ylabel('Probability density (log scale)')
+    ax.set_title('Power-law distribution (log-log scale)')
+    ax.grid(True, alpha=0.3, which='both')
+
+    return ax, hist, bin_centers
+
+def calculate_sample_statistics(samples, x_min):
+    """
+    Calculate statistical metrics for power-law samples
+
+    参数:
+    samples: Power-law distributed samples
+    x_min: Expected minimum value of the distribution
+
+    返回:
+    dict: Dictionary containing statistical metrics
+    """
+    return {
+        'count': len(samples),
+        'min': np.min(samples),
+        'max': np.max(samples),
+        'median': np.median(samples),
+        'mean': np.mean(samples),
+        'x_min': x_min
+    }
+
+def print_sample_statistics(stats):
+    """
+    Print formatted statistical metrics for power-law samples
+
+    参数:
+    stats: Dictionary containing statistical metrics from calculate_sample_statistics
+    """
+    print(f"生成的样本统计:")
+    print(f"  样本数: {stats['count']}")
+    print(f"  最小值: {stats['min']:.4f} (应该接近 x_min={stats['x_min']})")
+    print(f"  最大值: {stats['max']:.4f}")
+    print(f"  中位数: {stats['median']:.4f}")
+    print(f"  均值: {stats['mean']:.4f}")
+
 # 测试代码
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    
+
     # 生成样本
     alpha = 2.5  # 幂律指数
     x_min = 1.0  # 下限
     samples = generate_transformative_power_law_samples(alpha, x_min, 100000)
-    
+
     # 绘制直方图
-    plt.figure(figsize=(10, 6))
-    
+    fig = plt.figure(figsize=(10, 6))
+
     # 使用对数坐标显示幂律分布的特征
-    plt.subplot(1, 2, 1)
-    plt.hist(samples, bins=100, density=True, alpha=0.7, color='blue')
-    plt.xlabel('x')
-    plt.ylabel('Probability density')
-    plt.title('Power-law distribution (linear scale)')
-    plt.grid(True, alpha=0.3)
-    
-    plt.subplot(1, 2, 2)
-    # 对数对数坐标图，幂律分布应该显示为直线
-    hist, bin_edges = np.histogram(samples, bins=create_log_space_bins(x_min, samples),density=True)
-    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-    plt.loglog(bin_centers[hist > 0], hist[hist > 0], 'o-', alpha=0.7)
-    plt.xlabel('x (log scale)')
-    plt.ylabel('Probability density (log scale)')
-    plt.title('Power-law distribution (log-log scale)')
-    plt.grid(True, alpha=0.3, which='both')
-    
+    ax1 = plt.subplot(1, 2, 1)
+    plot_linear_histogram(samples, ax=ax1)
+
+    ax2 = plt.subplot(1, 2, 2)
+    plot_loglog_histogram(samples, x_min, ax=ax2)
+
     plt.tight_layout()
     plt.show()
-    
+
     # 打印统计信息
-    print(f"生成的样本统计:")
-    print(f"  样本数: {len(samples)}")
-    print(f"  最小值: {np.min(samples):.4f} (应该接近 x_min={x_min})")
-    print(f"  最大值: {np.max(samples):.4f}")
-    print(f"  中位数: {np.median(samples):.4f}")
-    print(f"  均值: {np.mean(samples):.4f}")
+    stats = calculate_sample_statistics(samples, x_min)
+    print_sample_statistics(stats)
