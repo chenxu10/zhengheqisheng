@@ -1,6 +1,23 @@
+"""
+This script provides tools to plot on a sample of data set on liner, log-log and
+log-binning scales.
+
+It helps you to see whether underlying data set has a power law potential.
+
+It plots on generated simulated data using power law when alpha=2.5.
+
+It also plots on empircial data of daily SPY return to check slope vaguely.
+
+TODO:
+It's worth to separate seeing SPY data with left tail and right tail analyses
+
+Author: Xu.Shen<xs286@cornell.edu>
+"""
+
 import numpy as np
 from scipy.stats import uniform
 import matplotlib.pyplot as plt
+from src.dataservices.fetch_data import get_returns
 
 def uniform_sample_r(loc, scale, size):
     """生成均匀分布的随机数"""
@@ -91,7 +108,7 @@ def plot_linear_histogram(samples, ax=None):
         ax = plt.gca()
 
     ax.hist(samples, bins=30, density=True, alpha=0.7, color='blue')
-    ax.set_xlim(left=None, right=max(samples) + 1000)
+    ax.set_xlim(left=None, right=max(samples)+0.01)
     ax.set_xlabel('x')
     ax.set_ylabel('Probability density')
     ax.set_title('Power-law distribution (linear scale)')
@@ -215,9 +232,8 @@ def print_sample_statistics(stats):
 # 测试代码
 if __name__ == "__main__":
     alpha = 2.5  # 幂律指数
-    x_min = 1.0  # 下限
+    x_min = 1
     samples = generate_transformative_power_law_samples(alpha, x_min, 1000000)
-
     # 绘制直方图
     fig = plt.figure(figsize=(10, 6))
 
@@ -236,3 +252,10 @@ if __name__ == "__main__":
 
     stats = calculate_sample_statistics(samples, x_min)
     print_sample_statistics(stats)
+    
+    # Fetch SPY daily returns data
+    data = get_returns('SPY', 1)  # Daily returns (period_length=1)
+    samples = np.abs(data.values)  # Use absolute values for power law analysis
+    ax = plt.gca()
+    plot_loglog_histogram(samples, min(samples), ax=ax)
+    plt.show()
