@@ -196,6 +196,43 @@ def plot_loglog_histogram_log_binning(samples, x_min, ax=None):
 
     return ax, density, bin_centers
 
+
+def plot_loglog_histogram_spy(samples, x_min, ax=None):
+    """
+    Plot log-log scale histogram of power-law samples
+
+    Uses linear bins with standard numpy density calculation.
+    This can produce noisier plots in the tail region (similar to Newman plot b).
+
+    参数:
+    samples: Power-law distributed samples
+    x_min: Minimum value of the distribution
+    ax: Matplotlib axes object. If None, uses current axes
+
+    返回:
+    ax: The axes object used for plotting
+    hist: Histogram values
+    bin_centers: Bin center values
+    """
+
+    if ax is None:
+        ax = plt.gca()
+
+    # Create linear bins
+    bins = np.linspace(x_min, np.max(samples), 100)
+
+    # Use unified histogram computation pipeline
+    hist, bin_centers, _ = compute_histogram_with_bins(samples, bins, method='numpy_density')
+
+    # Plot only positive histogram values
+    ax.loglog(bin_centers[hist > 0], hist[hist > 0], 'o-', alpha=0.7)
+    ax.set_xlabel('x (log scale)')
+    ax.set_ylabel('Probability density (log scale)')
+    ax.set_title('Power-law distribution (log-log scale) on Historical SPY Daily Returns')
+    ax.grid(True, alpha=0.3, which='both')
+
+    return ax, hist, bin_centers
+
 def calculate_sample_statistics(samples, x_min):
     """
     Calculate statistical metrics for power-law samples
@@ -272,5 +309,5 @@ if __name__ == "__main__":
     data = get_returns('SPY', 1)  # Daily returns (period_length=1)
     samples = np.abs(data.values)  # Use absolute values for power law analysis
     ax = plt.gca()
-    plot_loglog_histogram(samples, min(samples), ax=ax)
+    plot_loglog_histogram_spy(samples, min(samples), ax=ax)
     plt.show()

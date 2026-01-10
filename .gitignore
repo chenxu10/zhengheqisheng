@@ -4,3 +4,4 @@ venv/
 tests/__pycache__/*
 data/
 hypothesis/*
+src/images/*
