@@ -1,9 +1,9 @@
 """
-Plot put option prices comparing market vs power-law tail pricing models.
+Plot put option prices comparing market vs power-law tail pricing model vs BSM.
 
 Uses data-view-model separation:
 - Data: Load and filter options data
-- Model: Calculate theoretical prices using power-law formulas
+- Model: Calculate theoretical prices using Nassim's power-law formula and BSM
 - View: Plot comparison figures
 
 Author: Xu.Shen<xs286@cornell.edu>
@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dataclasses import dataclass
 from typing import List, Tuple
+from scipy.stats import norm
 
 
 # =============================================================================
@@ -27,6 +28,8 @@ class OptionsData:
     spot: float
     dte: int
     quote_date: str
+    tau: float
+    rate: float
 
 
 def load_puts_data(filepath: str) -> pd.DataFrame:
@@ -44,11 +47,7 @@ def filter_by_dte(df: pd.DataFrame, target_dte: int, tolerance: int = 5) -> pd.D
 
 def filter_otm_puts(df: pd.DataFrame, spot: float,
                     min_moneyness: float = 0.3, max_moneyness: float = 0.95) -> pd.DataFrame:
-    """Filter out-of-the-money puts within moneyness range.
-
-    Note: max_moneyness < 1.0 avoids singularity in Nassim formula
-    when strike is too close to spot.
-    """
+    """Filter out-of-the-money puts within moneyness range."""
     min_strike = spot * min_moneyness
     max_strike = spot * max_moneyness
     return df[(df['strike'] <= max_strike) & (df['strike'] >= min_strike)]
@@ -66,16 +65,40 @@ def get_options_slice(df: pd.DataFrame, target_dte: int,
     spot = filtered['close'].iloc[0]
     actual_dte = filtered['dte'].iloc[0]
     quote_date = filtered['Quote_Date'].iloc[0]
+    tau = filtered['tau'].iloc[0]
+    rate = filtered['rate'].iloc[0]
 
     filtered = filter_otm_puts(filtered, spot, min_moneyness, max_moneyness)
     filtered = filtered.sort_values('strike', ascending=False)
 
-    return OptionsData(df=filtered, spot=spot, dte=actual_dte, quote_date=quote_date)
+    return OptionsData(df=filtered, spot=spot, dte=actual_dte,
+                       quote_date=quote_date, tau=tau, rate=rate)
 
 
 # =============================================================================
 # MODEL LAYER
 # =============================================================================
+
+def bsm_put_price(S, K, T, r, sigma):
+    """Black-Scholes-Merton put option price.
+
+    BSM assumes log-normal returns (thin tails), which underprices
+    deep OTM options compared to fat-tailed reality.
+    """
+    if T <= 0 or sigma <= 0:
+        return max(K - S, 0)
+
+    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+
+    put = K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+    return put
+
+
+def compute_bsm_prices(strikes, spot, tau, rate, sigma):
+    """Compute BSM put prices for all strikes using constant volatility."""
+    return [bsm_put_price(spot, K, tau, rate, sigma) for K in strikes]
+
 
 def nassim_put_formula(K1, K2, P_K1, alpha, spot):
     """Nassim's put pricing formula based on power-law tail."""
@@ -84,33 +107,32 @@ def nassim_put_formula(K1, K2, P_K1, alpha, spot):
     return P_K1 * (nom / denom)
 
 
-def raphael_put(K1, K2, P_K1, alpha):
-    """Raphael's simplified put pricing formula."""
-    return P_K1 * (K2/K1) ** (alpha+1)
-
-
-def nassim_price_put(df, alpha, row, min_price):
-    """Compute put prices using both Nassim and Raphael formulas."""
+def compute_nassim_prices(df, alpha, row, min_price):
+    """Compute put prices using Nassim's power-law formula."""
     df = df[df[row] >= min_price]
     strikes = df.strike.to_list()
     df = df.sort_values(by="strike", ascending=False)
     strikes = sorted(strikes, reverse=True)
+
     K_anchor = max(strikes)
     anchor = df[df["strike"] == K_anchor][row].iloc[0]
-
-    nassim = [anchor]
-    raphael = [anchor]
     spot = df.close.iloc[0]
 
+    prices = [anchor]
     for i in range(1, len(strikes)):
         K_curr = strikes[i]
         K_prev = strikes[i-1]
+        prices.append(nassim_put_formula(K_prev, K_curr, prices[-1], alpha, spot))
 
-        # Each formula uses its OWN previous price
-        nassim.append(nassim_put_formula(K_prev, K_curr, nassim[-1], alpha, spot))
-        raphael.append(raphael_put(K_prev, K_curr, raphael[-1], alpha))
+    return strikes, prices
 
-    return strikes, raphael, nassim
+
+def get_anchor_iv(df, price_col, min_price):
+    """Get implied volatility from the anchor (highest) strike."""
+    df_filtered = df[df[price_col] >= min_price].sort_values('strike', ascending=False)
+    iv_ask = df_filtered['IV_ask'].iloc[0]
+    iv_bid = df_filtered['IV_bid'].iloc[0]
+    return (iv_ask + iv_bid) / 2 if iv_bid > 0 else iv_ask
 
 
 @dataclass
@@ -119,36 +141,41 @@ class PricingResult:
     strikes: List[float]
     market_prices: List[float]
     nassim_prices: List[float]
-    raphael_prices: List[float]
+    bsm_prices: List[float]
     alpha: float
+    sigma: float
     spot: float
 
 
 def compute_model_prices(options: OptionsData, alpha: float,
                          price_col: str = 'mid', min_price: float = 0.01) -> PricingResult:
-    """Compute theoretical prices using power-law models."""
+    """Compute theoretical prices using Nassim and BSM models."""
     df = options.df.copy()
 
-    strikes, raphael, nassim = nassim_price_put(df, alpha, row=price_col, min_price=min_price)
+    strikes, nassim_prices = compute_nassim_prices(df, alpha, row=price_col, min_price=min_price)
 
     market_df = df[df[price_col] >= min_price].sort_values('strike', ascending=False)
     market_prices = market_df[price_col].tolist()
 
+    sigma = get_anchor_iv(df, price_col, min_price)
+    bsm_prices = compute_bsm_prices(strikes, options.spot, options.tau, options.rate, sigma)
+
     return PricingResult(
         strikes=strikes,
         market_prices=market_prices,
-        nassim_prices=nassim,
-        raphael_prices=raphael,
+        nassim_prices=nassim_prices,
+        bsm_prices=bsm_prices,
         alpha=alpha,
+        sigma=sigma,
         spot=options.spot
     )
 
 
-def objective_puts_nassim(alpha, dataframe, row, min_price):
+def objective_function(alpha, dataframe, row, min_price):
     """Objective function for alpha optimization."""
-    _, _, nassim = nassim_price_put(dataframe, alpha, row=row, min_price=min_price)
-    market_prices = dataframe[dataframe[row] >= min_price].sort_values("strike")[row].to_list()
-    return np.sum((np.array(nassim) - np.array(market_prices))**2)
+    _, nassim_prices = compute_nassim_prices(dataframe, alpha, row=row, min_price=min_price)
+    market_prices = dataframe[dataframe[row] >= min_price].sort_values("strike", ascending=False)[row].tolist()
+    return np.sum((np.array(nassim_prices) - np.array(market_prices))**2)
 
 
 def find_best_alpha(options: OptionsData, price_col: str = 'mid',
@@ -158,7 +185,7 @@ def find_best_alpha(options: OptionsData, price_col: str = 'mid',
 
     df = options.df.copy()
     result = minimize_scalar(
-        objective_puts_nassim,
+        objective_function,
         bounds=alpha_range,
         args=(df, price_col, min_price),
         method='bounded'
@@ -172,16 +199,16 @@ def find_best_alpha(options: OptionsData, price_col: str = 'mid',
 
 def plot_single_comparison(ax: plt.Axes, result: PricingResult,
                            dte: int, show_legend: bool = True) -> None:
-    """Plot single comparison of market vs model prices."""
+    """Plot comparison of market vs Nassim vs BSM prices."""
     strikes = result.strikes
 
-    ax.plot(strikes, result.raphael_prices, 'b-', linewidth=1.5, label='Model')
-    ax.plot(strikes, result.nassim_prices, 'r-', linewidth=1.5, label='Theo')
+    ax.plot(strikes, result.nassim_prices, 'r-', linewidth=1.5, label='Nassim')
+    ax.plot(strikes, result.bsm_prices, 'b--', linewidth=1.5, label='BSM')
     ax.scatter(strikes, result.market_prices, c='black', s=10, label='Market', zorder=5)
 
     ax.set_xlabel('K')
     ax.set_ylabel('P')
-    ax.set_title(f'α: {result.alpha:.1f}  DTE: {dte}d', fontsize=10)
+    ax.set_title(f'α={result.alpha:.1f}  σ={result.sigma:.0%}  DTE={dte}d', fontsize=10)
     ax.grid(True, alpha=0.3)
 
     if show_legend:
@@ -248,8 +275,8 @@ def main():
     ALPHA = 3.4
     DATA_PATH = 'data/df_puts_2018_filtered.csv'
     DTE_VALUES = [15, 30, 46, 60, 90]
-    MIN_MONEYNESS = 0.70  # 70% of spot (deep OTM, similar to reference)
-    MAX_MONEYNESS = 0.90  # 90% of spot (avoid singularity near ATM)
+    MIN_MONEYNESS = 0.70
+    MAX_MONEYNESS = 0.90
 
     print(f"Loading data from {DATA_PATH}")
     df = load_puts_data(DATA_PATH)
