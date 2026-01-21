@@ -288,6 +288,9 @@ if __name__ == "__main__":
     ax3 = plt.subplot(2, 2, 3)
     plot_loglog_histogram_log_binning(gaussian_samples, np.min(gaussian_samples), ax=ax3)
 
+    plt.tight_layout()
+    plt.show()
+
     # Plot power law samples
     fig = plt.figure(figsize=(10, 6))
     ax1 = plt.subplot(2, 2, 1)
