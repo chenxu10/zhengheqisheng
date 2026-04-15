@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+def survival_function(alpha, l, scaling_factor):
+    pass
+
+def expected_call_payoff(k, s, survival_function):
+    pass
+
+def relative_call_pricing(exp_call_k1_formula, exp_call_k2_formula):
+    return exp_call_k1_formula / exp_call_k2_formula
+
 def call_price_ratio(
     K: float,
     K_anchor: float,
