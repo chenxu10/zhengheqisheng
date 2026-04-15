@@ -6,6 +6,9 @@ Uses data-view-model separation:
 - Model: Calculate theoretical prices using Nassim's power-law formula and BSM
 - View: Plot comparison figures
 
+How to find anchor?
+How many tail exponents of data?
+Which alpha to choose?
 Author: Xu.Shen<xs286@cornell.edu>
 """
 
